@@ -52,8 +52,9 @@ class Player(Charakter):
 
 # An example opponent
 class Orc(Charakter):
-    def __init__(self, live=20):
+    def __init__(self, live=20, weapon=Swort()):
         Charakter.__init__(self, live)
+        self.weapon = weapon
 
 
 # Map class containing a matrix of fields
@@ -104,6 +105,8 @@ if __name__ == "__main__":
                 player0.hit(player0.inventory[0], world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0])
                 print("A hit! The Orc has",
                       str(world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0].live), "lives left.")
+                world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0].hit(world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0].weapon, player0)
+                print("You got hurt! You have", player0.live, "left.")
             elif action == "error":
                 print("Please enter a valid command! Enter help for help.")
         else:

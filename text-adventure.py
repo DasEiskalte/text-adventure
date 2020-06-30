@@ -1,6 +1,19 @@
 import random
 
 
+class Game():
+    @staticmethod
+    def end(cause="suicide"):
+        if cause == "suicide":
+            print("You commited suicide")
+            exit()
+        elif cause == "killed":
+            print("You were slained to death")
+            exit()
+        else:
+            exit()
+
+
 # Item class
 class Item():
     def __init__(self, weight, worth):
@@ -26,10 +39,16 @@ class Swort(Weapon):
 class Charakter():
     def __init__(self, live):
         self.live = live
+        self.alive = True
 
     # Function for giving damage to Characters
     def hit(self, weapon, target):
         target.live -= weapon.damage
+        if target.live <= 0:
+            target.die()
+
+    def die(self):
+        self.alive = False
 
 
 # Player class. Subclass of Character
@@ -48,6 +67,11 @@ class Player(Charakter):
             return "hit"
         else:
             return "error"
+
+    def die(self):
+        Game.end(cause="killed")
+
+
 
 
 # An example opponent
@@ -90,12 +114,13 @@ if __name__ == "__main__":
     world0.generate()
 
     # Starting battle if monster in room
-    if world0.mapMatrix[world0.position[0]][world0.position[1]].monsterCount != 0:
+    if world0.mapMatrix[world0.position[0]][world0.position[1]].monsterCount != 0 and \
+            world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0].alive == True:
         print("There is an Orc in this room")
         player0.isInBattle = True
 
         # Continuing battle if the HP of the monster are != 0
-        while world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0].live != 0:
+        while world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0].alive == True:
             action = player0.commandHandler(input("Please enter your move: "))
             if action == "help":
                 print("You are in a battle. Possible actions are hit.")
@@ -105,7 +130,8 @@ if __name__ == "__main__":
                 player0.hit(player0.inventory[0], world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0])
                 print("A hit! The Orc has",
                       str(world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0].live), "lives left.")
-                world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0].hit(world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0].weapon, player0)
+                world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0].hit(
+                    world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0].weapon, player0)
                 print("You got hurt! You have", player0.live, "left.")
             elif action == "error":
                 print("Please enter a valid command! Enter help for help.")

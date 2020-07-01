@@ -79,6 +79,8 @@ class Player(Charakter):
             return "up"
         elif command == "down" and self.isInBattle == False:
             return "down"
+        elif command == "view" and self.isInBattle == False:
+            return "view"
         else:
             return "error"
 
@@ -134,6 +136,26 @@ class Map():
         for i in range(self.width):
             for j in range(self.height):
                 self.mapMatrix[i][j] = Field()
+
+    def view(self, player):
+        answer = ""
+        if player.position[1] == self.height:
+            answer += "The way up is blocked\n"
+        else:
+            answer += "The way up is opened\n"
+        if player.position[1] == 0:
+            answer += "The way down is blocked\n"
+        else:
+            answer += "The way down is opened\n"
+        if player.position[0] == self.width:
+            answer += "The way right is blocked\n"
+        else:
+            answer += "The way right is opened\n"
+        if player.position[0] == 0:
+            answer += "The way left is blocked\n"
+        else:
+            answer += "The way left is opened\n"
+        return answer
 
 
 # A field is containing infos abaout monster, items and other stuff
@@ -191,6 +213,8 @@ if __name__ == "__main__":
                 print("Please enter your movement direction")
             elif action == "error":
                 print("This is no valid command. Enter help for help.")
+            elif action == "view":
+                print(world0.view(player=player0))
             elif action == "up":
                 if player0.move(direction="up"):
                     print("Moved up.")

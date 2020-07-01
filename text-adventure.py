@@ -82,6 +82,35 @@ class Player(Charakter):
         else:
             return "error"
 
+    # Moves into given direction by changing the players position array
+    def move(self, direction=""):
+        if direction == "up":
+            if self.position[1] < world0.height:
+                self.position[1] += 1
+                return True
+            else:
+                return False
+        elif direction == "down":
+            if self.position[1] >= 1:
+                self.position[1] -= 1
+                return True
+            else:
+                return False
+        elif direction == "right":
+            if self.position[0] < world0.width:
+                self.position[0] += 1
+                return True
+            else:
+                return False
+        elif direction == "left":
+            if self.position[0] >= 1:
+                self.position[0] -= 1
+                return True
+            else:
+                return False
+        else:
+            return False
+
     def die(self):
         Game.end(cause="killed")
 
@@ -162,3 +191,27 @@ if __name__ == "__main__":
                 print("Please enter your movement direction")
             elif action == "error":
                 print("This is no valid command. Enter help for help.")
+            elif action == "up":
+                if player0.move(direction="up"):
+                    print("Moved up.")
+                    player0.roomIdle = False
+                else:
+                    print("You cant move in this direction")
+            elif action == "down":
+                if player0.move(direction="down"):
+                    print("Moved down.")
+                    player0.roomIdle = False
+                else:
+                    print("You cant move in this direction")
+            elif action == "left":
+                if player0.move(direction="left"):
+                    print("Moved left.")
+                    player0.roomIdle = False
+                else:
+                    print("You cant move in this direction")
+            elif action == "right":
+                if player0.move(direction="right"):
+                    print("Moved right.")
+                    player0.roomIdle = False
+                else:
+                    print("You cant move in this direction")

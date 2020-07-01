@@ -2,6 +2,8 @@ import random
 
 
 class Game():
+    state = True
+
     @staticmethod
     def end(cause="suicide"):
         if cause == "suicide":
@@ -55,9 +57,13 @@ class Charakter():
 class Player(Charakter):
     inventory = []
 
-    def __init__(self, live=100):
+    def __init__(self, live=100, position=[0, 0], roomIdle=False):
         Charakter.__init__(self, live)
+        if position is None:
+            position = [0, 0]
         self.isInBattle = False
+        self.position = position
+        self.roomIdle = roomIdle
 
     # Used for handling commands
     def commandHandler(self, command=""):
@@ -65,13 +71,48 @@ class Player(Charakter):
             return "help"
         elif command == "hit" and self.isInBattle:
             return "hit"
+        elif command == "right" and self.isInBattle == False:
+            return "right"
+        elif command == "left" and self.isInBattle == False:
+            return "left"
+        elif command == "up" and self.isInBattle == False:
+            return "up"
+        elif command == "down" and self.isInBattle == False:
+            return "down"
         else:
             return "error"
 
+    # Moves into given direction by changing the players position array
+    def move(self, direction=""):
+        if direction == "up":
+            if self.position[1] < world0.height:
+                self.position[1] += 1
+                return True
+            else:
+                return False
+        elif direction == "down":
+            if self.position[1] >= 1:
+                self.position[1] -= 1
+                return True
+            else:
+                return False
+        elif direction == "right":
+            if self.position[0] < world0.width:
+                self.position[0] += 1
+                return True
+            else:
+                return False
+        elif direction == "left":
+            if self.position[0] >= 1:
+                self.position[0] -= 1
+                return True
+            else:
+                return False
+        else:
+            return False
+
     def die(self):
         Game.end(cause="killed")
-
-
 
 
 # An example opponent
@@ -83,8 +124,7 @@ class Orc(Charakter):
 
 # Map class containing a matrix of fields
 class Map():
-    def __init__(self, width=5, height=5, position=[0, 0]):
-        self.position = position
+    def __init__(self, width=5, height=5):
         self.height = height
         self.width = width
         self.mapMatrix = [[0] * width] * height
@@ -114,29 +154,64 @@ if __name__ == "__main__":
     world0.generate()
 
     # Starting battle if monster in room
-    if world0.mapMatrix[world0.position[0]][world0.position[1]].monsterCount != 0 and \
-            world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0].alive == True:
-        print("There is an Orc in this room")
-        player0.isInBattle = True
+    while Game.state:
+        if world0.mapMatrix[player0.position[0]][player0.position[1]].monsterCount != 0 and \
+                world0.mapMatrix[player0.position[0]][player0.position[1]].monster[0].alive == True:
+            print("There is an Orc in this room")
+            player0.isInBattle = True
 
-        # Continuing battle if the HP of the monster are != 0
-        while world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0].alive == True:
-            action = player0.commandHandler(input("Please enter your move: "))
-            if action == "help":
-                print("You are in a battle. Possible actions are hit.")
+            # Continuing battle if the HP of the monster are != 0
+            while world0.mapMatrix[player0.position[0]][player0.position[1]].monster[0].alive:
+                action = player0.commandHandler(input("Please enter your move: "))
+                if action == "help":
+                    print("You are in a battle. Possible actions are hit.")
 
-            # Executing a hit with the weapon on the 0. slot of the inventory
-            elif action == "hit":
-                player0.hit(player0.inventory[0], world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0])
-                print("A hit! The Orc has",
-                      str(world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0].live), "lives left.")
-                world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0].hit(
-                    world0.mapMatrix[world0.position[0]][world0.position[1]].monster[0].weapon, player0)
-                print("You got hurt! You have", player0.live, "left.")
-            elif action == "error":
-                print("Please enter a valid command! Enter help for help.")
+                # Executing a hit with the weapon on the 0. slot of the inventory
+                elif action == "hit":
+                    player0.hit(player0.inventory[0],
+                                world0.mapMatrix[player0.position[0]][player0.position[1]].monster[0])
+                    print("A hit! The Orc has",
+                          str(world0.mapMatrix[player0.position[0]][player0.position[1]].monster[0].live), "lives left.")
+                    world0.mapMatrix[player0.position[0]][player0.position[1]].monster[0].hit(
+                        world0.mapMatrix[player0.position[0]][player0.position[1]].monster[0].weapon, player0)
+                    print("You got hurt! You have", player0.live, "left.")
+                elif action == "error":
+                    print("Please enter a valid command! Enter help for help.")
+            else:
+                print("You killed the Orc!")
+                player0.isInBattle = False
+                player0.roomIdle = False
         else:
-            print("You killed the Orc!")
+            print("This room is clear")
+            player0.roomIdle = True
 
-    else:
-        print("This room is clear")
+        while player0.roomIdle:
+            action = player0.commandHandler(input("Please enter your command: "))
+            if action == "help":
+                print("Please enter your movement direction")
+            elif action == "error":
+                print("This is no valid command. Enter help for help.")
+            elif action == "up":
+                if player0.move(direction="up"):
+                    print("Moved up.")
+                    player0.roomIdle = False
+                else:
+                    print("You cant move in this direction")
+            elif action == "down":
+                if player0.move(direction="down"):
+                    print("Moved down.")
+                    player0.roomIdle = False
+                else:
+                    print("You cant move in this direction")
+            elif action == "left":
+                if player0.move(direction="left"):
+                    print("Moved left.")
+                    player0.roomIdle = False
+                else:
+                    print("You cant move in this direction")
+            elif action == "right":
+                if player0.move(direction="right"):
+                    print("Moved right.")
+                    player0.roomIdle = False
+                else:
+                    print("You cant move in this direction")

@@ -164,7 +164,7 @@ class Map():
 
 # A field is containing infos abaout monster, items and other stuff
 class Field():
-    def __init__(self, monsterMin=0, monsterMax=0):
+    def __init__(self, monsterMin=0, monsterMax=1):
         self.monster = []
         self.monsterCount = 0
         for i in range(random.randint(monsterMin, monsterMax)):

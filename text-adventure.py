@@ -9,6 +9,9 @@ class Game():
         if cause == "suicide":
             print("You commited suicide")
             exit()
+        elif cause == "win":
+            print("You found the exit. You won!")
+            exit()
         elif cause == "killed":
             print("You were slained to death")
             exit()
@@ -87,7 +90,7 @@ class Player(Charakter):
     # Moves into given direction by changing the players position array
     def move(self, direction=""):
         if direction == "up":
-            if self.position[1] < world0.height:
+            if self.position[1] < (world0.height - 1):
                 self.position[1] += 1
                 return True
             else:
@@ -99,7 +102,7 @@ class Player(Charakter):
             else:
                 return False
         elif direction == "right":
-            if self.position[0] < world0.width:
+            if self.position[0] < (world0.width - 1):
                 self.position[0] += 1
                 return True
             else:
@@ -126,7 +129,8 @@ class Orc(Charakter):
 
 # Map class containing a matrix of fields
 class Map():
-    def __init__(self, width=5, height=5):
+    def __init__(self, width=5, height=5, end=[4, 4]):
+        self.end = end
         self.height = height
         self.width = width
         self.mapMatrix = [[0] * width] * height
@@ -139,7 +143,7 @@ class Map():
 
     def view(self, player):
         answer = ""
-        if player.position[1] == self.height:
+        if player.position[1] >= (self.height - 1):
             answer += "The way up is blocked\n"
         else:
             answer += "The way up is opened\n"
@@ -147,7 +151,7 @@ class Map():
             answer += "The way down is blocked\n"
         else:
             answer += "The way down is opened\n"
-        if player.position[0] == self.width:
+        if player.position[0] >= (self.width - 1):
             answer += "The way right is blocked\n"
         else:
             answer += "The way right is opened\n"
@@ -160,7 +164,7 @@ class Map():
 
 # A field is containing infos abaout monster, items and other stuff
 class Field():
-    def __init__(self, monsterMin=0, monsterMax=1):
+    def __init__(self, monsterMin=0, monsterMax=0):
         self.monster = []
         self.monsterCount = 0
         for i in range(random.randint(monsterMin, monsterMax)):
@@ -208,6 +212,8 @@ if __name__ == "__main__":
             player0.roomIdle = True
 
         while player0.roomIdle:
+            if player0.position[0] == world0.end[0] and player0.position[1] == world0.end[1]:
+                Game.end(cause="win")
             action = player0.commandHandler(input("Please enter your command: "))
             if action == "help":
                 print("Please enter your movement direction")
